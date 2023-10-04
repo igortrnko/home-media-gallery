@@ -1,0 +1,26 @@
+
+TO SHOW UPLOADED IMAGES
+
+export async function GET( NextRequest/Request, params) {
+
+    ... do processing, parse your routes
+    
+    ... write/read files to/from a data folder you created 
+        (i.e. /data/stuff)
+
+    ... read your files from /data/stuff to a buffer (i.e., imgBuffer)
+
+    return new NextResponse(
+        imgBuffer,
+            {
+                status: 200,
+                headers: {
+                    "Content-Type": "image/png",
+                }
+            }
+        )
+}
+
+
+Then:
+<Image src='/my/route/img.png', .../>
