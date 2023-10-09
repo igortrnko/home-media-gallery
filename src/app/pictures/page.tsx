@@ -10,38 +10,75 @@ import { useState } from "react";
 import Image from "next/image";
 import UploadButton from "@/components/UploadButton";
 import { convertMultipleFilesToStringArray } from "@/util/file";
+import axios, { AxiosRequestConfig } from "axios";
+import myImageLoader from "@/util/imageLoader";
 
 export default function PicturesPage() {
   const [imgs, setImgs] = useState<null | { img: File; imgSrc: string }[]>(
     null
   );
-  const [drawerData, setDrawerData] = useState<null | {
-    img: File;
-    imgSrc: string;
-  }>(null);
-  const [drawerOpen, setDrawerOpen] = useState(false);
+  // const [drawerData, setDrawerData] = useState<null | {
+  //   img: File;
+  //   imgSrc: string;
+  // }>(null);
+  // const [drawerOpen, setDrawerOpen] = useState(false);
 
-  async function handleUpload(images: File[]) {
+  async function handleUpload(fileList: FileList, images: File[]) {
+    console.log(images);
     try {
-      const results = await convertMultipleFilesToStringArray(images);
-      const finalObj = images.map((img, i) => ({ img, imgSrc: results[i] }));
-      setImgs(finalObj);
+      // const formData = new FormData();
+      // images.forEach((img) => {
+      //   formData.append(img.name, img);
+      // });
+
+      // const { data } = await axios.post("/api/upload-images", formData);
+      // console.log(data);
+
+      const promises = images.map((image) => {
+        return async function () {
+          const formData = new FormData();
+          formData.append(image.name, image);
+
+          const config: AxiosRequestConfig = {
+            onUploadProgress: function (progressEvent) {
+              if (typeof progressEvent.progress === "number") {
+                const percentComplete = Math.round(
+                  progressEvent.progress * 100
+                );
+              }
+            },
+          };
+
+          const { data } = await axios.post(
+            "/api/upload-images",
+            formData,
+            config
+          );
+          console.log(image.name, data);
+        };
+      });
+
+      await Promise.all([promises.forEach((fn) => fn())]);
+
+      // const results = await convertMultipleFilesToStringArray(images);
+      // const finalObj = images.map((img, i) => ({ img, imgSrc: results[i] }));
+      // setImgs(finalObj);
     } catch {
       console.log("Error");
     }
   }
 
-  function handleImgClick(data: { img: File; imgSrc: string }) {
-    setDrawerData(data);
-    setDrawerOpen(true);
-  }
+  // function handleImgClick(data: { img: File; imgSrc: string }) {
+  //   setDrawerData(data);
+  //   setDrawerOpen(true);
+  // }
 
   return (
     <main>
       <Box className="p-4">
         <UploadButton onUploadImages={handleUpload} />
 
-        <Button onClick={() => setDrawerOpen(true)}>Open Drawer</Button>
+        {/* <Button onClick={() => setDrawerOpen(true)}>Open Drawer</Button> */}
       </Box>
 
       {imgs && (
@@ -49,7 +86,7 @@ export default function PicturesPage() {
           {imgs.map((file, i) => (
             <ImageListItem
               key={i}
-              onClick={() => handleImgClick(file)}
+              // onClick={() => handleImgClick(file)}
               onTouchEnd={(e) => console.log(e)}
               onTouchStart={(e) => console.log(e)}
             >
@@ -59,7 +96,18 @@ export default function PicturesPage() {
         </ImageList>
       )}
 
-      <SwipeableDrawer
+      {/* <Image
+        src={
+          "/f0e1b6fbdb024d78cfb3426287881959_DV773006-Edit.jpg"
+          // "/f0e1b6fbdb024d78cfb3426287881959_DV773006-Edit.jpg"
+        }
+        width={200}
+        height={200}
+        alt=""
+        loader={myImageLoader}
+      /> */}
+
+      {/* <SwipeableDrawer
         anchor="bottom"
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
@@ -86,7 +134,7 @@ export default function PicturesPage() {
             <p>{drawerData.img.lastModified}</p>
           </div>
         )}
-      </SwipeableDrawer>
+      </SwipeableDrawer> */}
     </main>
   );
 }

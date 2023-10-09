@@ -5,14 +5,14 @@ import AddIcon from "@mui/icons-material/Add";
 import type { FC, ChangeEvent } from "react";
 
 interface UploadButtonProps {
-  onUploadImages: (images: File[]) => void;
+  onUploadImages: (fileList: FileList, images: File[]) => void;
 }
 
 const UploadButton: FC<UploadButtonProps> = ({ onUploadImages }) => {
   const handleFileUpload = (event: ChangeEvent<HTMLInputElement>) => {
     const images = event.target.files;
     if (!images) return;
-    onUploadImages(Array.from(images));
+    onUploadImages(images, Array.from(images));
   };
 
   return (
