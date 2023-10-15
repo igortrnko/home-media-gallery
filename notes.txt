@@ -24,3 +24,35 @@ export async function GET( NextRequest/Request, params) {
 
 Then:
 <Image src='/my/route/img.png', .../>
+
+------------------------------------------
+      {/* <SwipeableDrawer
+        anchor="bottom"
+        open={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        onOpen={() => setDrawerOpen(true)}
+        allowSwipeInChildren={false}
+        disableDiscovery
+        disableSwipeToOpen
+        // swipeAreaWidth={50}
+        // disableSwipeToOpen={false}
+        // ModalProps={{
+        //   keepMounted: true,
+        // }}
+      >
+        {drawerData && (
+          <div>
+            <Image
+              src={drawerData.imgSrc}
+              alt={drawerData.img.name}
+              width={200}
+              height={200}
+            />
+            <p>{drawerData.img.name}</p>
+            <p>{drawerData.img.size}</p>
+            <p>{drawerData.img.lastModified}</p>
+          </div>
+        )}
+      </SwipeableDrawer> */}
+
+      ----------------------------------------------

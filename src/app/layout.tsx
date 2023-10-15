@@ -4,6 +4,7 @@ import ThemeRegistry from "@/ThemeRegistry/ThemeRegistry";
 import { roboto } from "@/ThemeRegistry/font";
 import Paper from "@mui/material/Paper";
 import BottomBarNavigation from "@/components/BottomBarNavigation";
+import RQProvider from "@/services/RQProvider";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -23,7 +24,7 @@ export default function RootLayout({
           elevation={8}
           className={`${roboto.className} min-h-screen`}
         >
-          {children}
+          <RQProvider>{children}</RQProvider>
           <BottomBarNavigation />
         </Paper>
       </ThemeRegistry>

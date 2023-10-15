@@ -13,12 +13,18 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.14.11",
     "@mui/material": "^5.14.11",
+    "@tanstack/react-query": "^4.36.1",
+    "@tanstack/react-query-devtools": "^4.36.1",
     "axios": "^1.5.1",
+    "blurhash": "^2.0.5",
     "busboy": "^1.6.0",
     "file-type": "^18.5.0",
+    "mongoose": "^7.6.0",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "react-infinite-scroll-component": "^6.1.0",
+    "sharp": "^0.32.6"
   },
   "devDependencies": {
     "@types/busboy": "^1.5.1",

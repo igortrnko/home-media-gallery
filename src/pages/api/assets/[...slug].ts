@@ -1,7 +1,13 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse, PageConfig } from "next";
 import path from "path";
 import fs from "fs/promises";
 import { fileTypeFromBuffer } from "file-type";
+
+export const config: PageConfig = {
+  api: {
+    responseLimit: false,
+  },
+};
 
 export default async function handler(
   req: NextApiRequest,
