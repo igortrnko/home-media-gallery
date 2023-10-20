@@ -4,7 +4,7 @@ import { PictureDT } from "@/server/models/Picture";
 import {
   GetImagesResponseType,
   getImages,
-  useImages,
+  // useImages,
 } from "@/services/imagesService";
 import { ImageList, ImageListItem, Box } from "@mui/material";
 import Image from "next/image";
@@ -14,42 +14,45 @@ import CircularProgress from "@mui/material/CircularProgress";
 import ImageLoadingSkeleton from "./ImageLoadingSkeleton";
 import InfiniteLoader from "react-window-infinite-loader";
 import { FixedSizeGrid as Grid } from "react-window";
+import useImagesStore from "@/zustandStore/imagesStore";
 
 interface PictureViewProps {
   serverSideInitialImages?: GetImagesResponseType;
 }
 
 const PictureView: FC<PictureViewProps> = ({ serverSideInitialImages }) => {
-  const { data, hasNextPage, fetchNextPage, isFetching, isFetchingNextPage } =
-    useImages(serverSideInitialImages);
+  useImagesStore();
 
-  const formattedData = useMemo(() => {
-    const finalData: Record<string, PictureDT[]> = {};
+  // const { data, hasNextPage, fetchNextPage, isFetching, isFetchingNextPage } =
+  //   useImages(serverSideInitialImages);
 
-    if (data) {
-      const allImages = data.pages.flatMap((page) => page.images) ?? [];
+  // const formattedData = useMemo(() => {
+  //   const finalData: Record<string, PictureDT[]> = {};
 
-      allImages.forEach((imageData) => {
-        const createdAt = new Date(imageData.createdAt).toLocaleDateString(
-          "sr-RS",
-          { month: "short", day: "2-digit", year: "numeric" }
-        );
+  //   if (data) {
+  //     const allImages = data.pages.flatMap((page) => page.images) ?? [];
 
-        finalData[createdAt] = finalData[createdAt] ?? [];
-        finalData[createdAt].push(imageData);
-      });
+  //     allImages.forEach((imageData) => {
+  //       const createdAt = new Date(imageData.createdAt).toLocaleDateString(
+  //         "sr-RS",
+  //         { month: "short", day: "2-digit", year: "numeric" }
+  //       );
 
-      return Object.entries(finalData);
-    } else {
-      return [];
-    }
-  }, [data]);
+  //       finalData[createdAt] = finalData[createdAt] ?? [];
+  //       finalData[createdAt].push(imageData);
+  //     });
+
+  //     return Object.entries(finalData);
+  //   } else {
+  //     return [];
+  //   }
+  // }, [data]);
 
   return (
     <Box className="px-1">
-      {isFetching && <ImageLoadingSkeleton />}
+      {/* {isFetching && <ImageLoadingSkeleton />} */}
 
-      <InfiniteScroll
+      {/* <InfiniteScroll
         dataLength={formattedData.length}
         next={fetchNextPage}
         hasMore={!!hasNextPage}
@@ -80,7 +83,7 @@ const PictureView: FC<PictureViewProps> = ({ serverSideInitialImages }) => {
             </ImageList>
           </div>
         ))}
-      </InfiniteScroll>
+      </InfiniteScroll> */}
     </Box>
   );
 };
