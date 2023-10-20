@@ -7,7 +7,7 @@ import path from "path";
 import fs from "fs";
 import getBlurBase64 from "@/util/blurImage";
 
-const LIMIT = 50;
+export const GET_IMAGE_LIMIT = 30;
 
 export async function getImagesServer(
   req: NextApiRequest,
@@ -17,23 +17,21 @@ export async function getImagesServer(
     const page =
       typeof req.query.page === "string" ? Number(req.query.page) : 1;
 
-    const skip = (page - 1) * LIMIT;
+    const skip = (page - 1) * GET_IMAGE_LIMIT;
 
     await dbConnect();
 
     const images = await Picture.find()
       .sort("-createdAt")
       .skip(skip)
-      .limit(LIMIT);
+      .limit(GET_IMAGE_LIMIT);
 
     const imagesCount = await Picture.count();
 
-    return res
-      .status(200)
-      .json({
-        success: true,
-        data: { images: images as PictureType[], imagesCount },
-      });
+    return res.status(200).json({
+      success: true,
+      data: { images: images as PictureType[], imagesCount },
+    });
   } catch (error) {
     return res.status(400).json({ message: "Something gone wrong!" });
   }
@@ -50,9 +48,12 @@ export async function uploadImagesServer(
 
     const dbResponse = await Picture.create(savedPicturesResponse);
 
-    res
-      .status(200)
-      .json({ success: true, data: dbResponse.reverse() as PictureType[] });
+    const imagesCount = await Picture.count();
+
+    res.status(200).json({
+      success: true,
+      data: { images: dbResponse.reverse() as PictureType[], imagesCount },
+    });
   } catch (error) {
     return res.status(400).json({ message: "Something gone wrong!" });
   }

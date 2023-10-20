@@ -1,27 +1,35 @@
 "use client";
 
 import { PictureDT } from "@/server/models/Picture";
-import { GetImagesResponseType, useImages } from "@/services/imagesService";
+import {
+  GetImagesResponseType,
+  getImages,
+  useImages,
+} from "@/services/imagesService";
 import { ImageList, ImageListItem, Box } from "@mui/material";
 import Image from "next/image";
-import { FC, useMemo, useState } from "react";
+import { FC, useMemo, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroll-component";
 import CircularProgress from "@mui/material/CircularProgress";
+import ImageLoadingSkeleton from "./ImageLoadingSkeleton";
+import InfiniteLoader from "react-window-infinite-loader";
+import { FixedSizeGrid as Grid } from "react-window";
 
 interface PictureViewProps {
-  serverSideInitialImages: GetImagesResponseType;
+  serverSideInitialImages?: GetImagesResponseType;
 }
 
 const PictureView: FC<PictureViewProps> = ({ serverSideInitialImages }) => {
-  const [page, setPage] = useState(1);
-
-  const { data, isFetching } = useImages(page, serverSideInitialImages);
+  const { data, hasNextPage, fetchNextPage, isFetching, isFetchingNextPage } =
+    useImages(serverSideInitialImages);
 
   const formattedData = useMemo(() => {
     const finalData: Record<string, PictureDT[]> = {};
 
     if (data) {
-      data.images.forEach((imageData) => {
+      const allImages = data.pages.flatMap((page) => page.images) ?? [];
+
+      allImages.forEach((imageData) => {
         const createdAt = new Date(imageData.createdAt).toLocaleDateString(
           "sr-RS",
           { month: "short", day: "2-digit", year: "numeric" }
@@ -37,13 +45,13 @@ const PictureView: FC<PictureViewProps> = ({ serverSideInitialImages }) => {
     }
   }, [data]);
 
-  const hasNextPage = data ? data.images.length < data.imagesCount : false;
-
   return (
     <Box className="px-1">
+      {isFetching && <ImageLoadingSkeleton />}
+
       <InfiniteScroll
         dataLength={formattedData.length}
-        next={() => setPage((current) => current + 1)}
+        next={fetchNextPage}
         hasMore={!!hasNextPage}
         loader={<CircularProgress className="flex mx-auto my-4" />}
       >

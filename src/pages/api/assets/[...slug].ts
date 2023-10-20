@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse, PageConfig } from "next";
 import path from "path";
 import fs from "fs/promises";
-import { fileTypeFromBuffer } from "file-type";
+import mime from "mime";
 
 export const config: PageConfig = {
   api: {
@@ -26,10 +26,10 @@ export default async function handler(
   try {
     const file = await fs.readFile(filePath);
 
-    const mimeType = await fileTypeFromBuffer(file);
+    const mimeType = mime.getType(filePath);
 
     res.writeHead(200, "ok", {
-      "Content-Type": mimeType?.mime,
+      "Content-Type": mimeType || "image/jpeg",
     });
     res.send(file);
   } catch {

@@ -3,15 +3,12 @@
 import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import { type FC, type ChangeEvent, useState } from "react";
-import { useImagesMutation } from "@/services/imagesService";
 import UploadProgressDialog from "./UploadProgressDialog";
+import useImagesStore from "@/zustandStore/imagesStore";
 
 const UploadButton: FC = () => {
   const [progress, setProgress] = useState<null | number>(null);
-
-  const mutation = useImagesMutation((uploadProgress) => {
-    setProgress((uploadProgress.progress || 0) * 100);
-  });
+  const uploadImages = useImagesStore((state) => state.uploadImages);
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const images = event.target.files;
@@ -23,7 +20,9 @@ const UploadButton: FC = () => {
       formData.append(img.name, img);
     });
 
-    mutation.mutate(formData, { onSuccess: () => setProgress(null) });
+    uploadImages(formData, (progress) =>
+      setProgress(progress.progress || null)
+    );
   };
 
   return (

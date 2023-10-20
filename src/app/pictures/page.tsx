@@ -1,12 +1,12 @@
 import { Box } from "@mui/material";
 import UploadButton from "@/components/UploadButton";
 import PictureView from "@/components/PictureView";
-import { getImages } from "@/services/imagesService";
+// import { getImages } from "@/services/imagesService";
 
-export const dynamic = "force-dynamic";
+// export const dynamic = "force-dynamic";
 
 export default async function PicturesPage() {
-  const initImages = await getImages(1);
+  // const initImages = await getImages({ pageParam: 1 });
 
   return (
     <main className="pb-14">
@@ -14,7 +14,8 @@ export default async function PicturesPage() {
         <UploadButton />
       </Box>
 
-      <PictureView serverSideInitialImages={initImages} />
+      <PictureView />
+      {/* <PictureView serverSideInitialImages={initImages} /> */}
     </main>
   );
 }
