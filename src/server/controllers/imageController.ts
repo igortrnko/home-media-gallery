@@ -7,35 +7,35 @@ import path from "path";
 import fs from "fs";
 import getBlurBase64 from "@/util/blurImage";
 
-export const GET_IMAGE_LIMIT = 30;
+// export const GET_IMAGE_LIMIT = 30;
 
-export async function getImagesServer(
-  req: NextApiRequest,
-  res: NextApiResponse
-) {
-  try {
-    const page =
-      typeof req.query.page === "string" ? Number(req.query.page) : 1;
+// export async function getImagesServer(
+//   req: NextApiRequest,
+//   res: NextApiResponse
+// ) {
+//   try {
+//     const page =
+//       typeof req.query.page === "string" ? Number(req.query.page) : 1;
 
-    const skip = (page - 1) * GET_IMAGE_LIMIT;
+//     const skip = (page - 1) * GET_IMAGE_LIMIT;
 
-    await dbConnect();
+//     await dbConnect();
 
-    const images = await Picture.find()
-      .sort("-createdAt")
-      .skip(skip)
-      .limit(GET_IMAGE_LIMIT);
+//     const images = await Picture.find()
+//       .sort("-createdAt")
+//       .skip(skip)
+//       .limit(GET_IMAGE_LIMIT);
 
-    const imagesCount = await Picture.count();
+//     const imagesCount = await Picture.count();
 
-    return res.status(200).json({
-      success: true,
-      data: { images: images as PictureType[], imagesCount },
-    });
-  } catch (error) {
-    return res.status(400).json({ message: "Something gone wrong!" });
-  }
-}
+//     return res.status(200).json({
+//       success: true,
+//       data: { images: images as PictureType[], imagesCount },
+//     });
+//   } catch (error) {
+//     return res.status(400).json({ message: "Something gone wrong!" });
+//   }
+// }
 
 export async function uploadImagesServer(
   req: NextApiRequest,

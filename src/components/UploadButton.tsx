@@ -4,11 +4,9 @@ import Button from "@mui/material/Button";
 import AddIcon from "@mui/icons-material/Add";
 import { type FC, type ChangeEvent, useState } from "react";
 import UploadProgressDialog from "./UploadProgressDialog";
-import useImagesStore from "@/zustandStore/imagesStore";
 
 const UploadButton: FC = () => {
   const [progress, setProgress] = useState<null | number>(null);
-  const uploadImages = useImagesStore((state) => state.uploadImages);
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const images = event.target.files;
@@ -19,10 +17,6 @@ const UploadButton: FC = () => {
     Array.from(images).forEach((img) => {
       formData.append(img.name, img);
     });
-
-    uploadImages(formData, (progress) =>
-      setProgress(progress.progress || null)
-    );
   };
 
   return (

@@ -4,7 +4,6 @@ import ThemeRegistry from "@/ThemeRegistry/ThemeRegistry";
 import { roboto } from "@/ThemeRegistry/font";
 import Paper from "@mui/material/Paper";
 import BottomBarNavigation from "@/components/BottomBarNavigation";
-import RQProvider from "@/services/RQProvider";
 import ErrorContainer from "@/components/ErrorContainer";
 
 export const metadata: Metadata = {
@@ -25,9 +24,7 @@ export default function RootLayout({
           elevation={8}
           className={`${roboto.className} min-h-screen`}
         >
-          <RQProvider>
-            <ErrorContainer>{children}</ErrorContainer>
-          </RQProvider>
+          <ErrorContainer>{children}</ErrorContainer>
           <BottomBarNavigation />
         </Paper>
       </ThemeRegistry>

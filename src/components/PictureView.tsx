@@ -21,7 +21,11 @@ interface PictureViewProps {
 }
 
 const PictureView: FC<PictureViewProps> = ({ serverSideInitialImages }) => {
-  useImagesStore();
+  const { getImages, loadingImages } = useImagesStore();
+
+  useEffect(() => {
+    getImages(1);
+  }, [getImages]);
 
   // const { data, hasNextPage, fetchNextPage, isFetching, isFetchingNextPage } =
   //   useImages(serverSideInitialImages);

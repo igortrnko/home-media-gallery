@@ -6,10 +6,11 @@ export interface GetImagesResponseType {
   images: PictureDT[];
   imagesCount: number;
 }
+
 export async function getImages({
   pageParam = 1,
 }): Promise<GetImagesResponseType> {
-  const res = await axiosClient.get(`/api/image?page=${pageParam}`);
+  const res = await axiosClient.get(`/api/picture?page=${pageParam}`);
   return res.data.data;
 }
 
