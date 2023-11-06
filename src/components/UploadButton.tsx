@@ -1,12 +1,19 @@
 "use client";
 
-import Button from "@mui/material/Button";
-import AddIcon from "@mui/icons-material/Add";
 import { type FC, type ChangeEvent, useState } from "react";
 import UploadProgressDialog from "./UploadProgressDialog";
+import useImagesStore from "@/zustandStore/imagesStore";
+import { useShallow } from "zustand/react/shallow";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 
 const UploadButton: FC = () => {
   const [progress, setProgress] = useState<null | number>(null);
+  const { uploadImages, uploadingImages } = useImagesStore(
+    useShallow((state) => ({
+      uploadImages: state.uploadImages,
+      uploadingImages: state.uploadingImages,
+    }))
+  );
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const images = event.target.files;
@@ -15,71 +22,34 @@ const UploadButton: FC = () => {
 
     const formData = new FormData();
     Array.from(images).forEach((img) => {
-      formData.append(img.name, img);
+      formData.append("files", img);
     });
+
+    uploadImages(formData, ({ progress }) =>
+      setProgress(progress ? progress * 100 : null)
+    );
   };
 
   return (
     <>
-      <Button
-        component="label"
-        variant="outlined"
-        className="rounded-full w-full"
-        startIcon={<AddIcon />}
+      <label
+        className="max-h-[100px] rounded-md flex flex-col items-center justify-center gap-5 cursor-pointer border-2 border-dashed border-l-blueGrey-400 shadow-md p-4"
+        htmlFor="files"
       >
-        Dodaj sliku
+        <AddPhotoAlternateIcon className="" />
+        <span className="text-sm text-center">Upload image</span>
         <input
-          hidden
           type="file"
+          id="files"
+          hidden
           accept="image/*,capture=camera"
           multiple
           onChange={handleFileUpload}
         />
-      </Button>
-      <UploadProgressDialog progress={progress} />
+      </label>
+      <UploadProgressDialog open={uploadingImages} progress={progress} />
     </>
   );
 };
 
 export default UploadButton;
-
-// async function handleUpload(fileList: FileList, images: File[]) {
-//   console.log(images);
-//   try {
-//     if (images.length === 0) return;
-
-//     console.log(data);
-
-//     // const promises = images.map((image) => {
-//     //   return async function () {
-//     //     const formData = new FormData();
-//     //     formData.append(image.name, image);
-
-//     //     const config: AxiosRequestConfig = {
-//     //       onUploadProgress: function (progressEvent) {
-//     //         if (typeof progressEvent.progress === "number") {
-//     //           const percentComplete = Math.round(
-//     //             progressEvent.progress * 100
-//     //           );
-//     //         }
-//     //       },
-//     //     };
-
-//     //     const { data } = await axios.post(
-//     //       "/api/upload-images",
-//     //       formData,
-//     //       config
-//     //     );
-//     //     console.log(image.name, data);
-//     //   };
-//     // });
-
-//     // await Promise.all([promises.forEach((fn) => fn())]);
-
-//     // const results = await convertMultipleFilesToStringArray(images);
-//     // const finalObj = images.map((img, i) => ({ img, imgSrc: results[i] }));
-//     // setImgs(finalObj);
-//   } catch {
-//     console.log("Error");
-//   }
-// }

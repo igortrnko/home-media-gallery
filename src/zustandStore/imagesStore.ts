@@ -8,6 +8,8 @@ interface ImageStore {
   images: PictureDT[];
   imagesCount: number;
   loadingImages: boolean;
+  isFetching: boolean;
+  uploadingImages: boolean;
   getImages: (page: number) => void;
   uploadImages: (
     formData: FormData,
@@ -15,28 +17,36 @@ interface ImageStore {
   ) => void;
 }
 
-const useImagesStore = create<ImageStore, [["zustand/devtools", never]]>(
+let isFirstLoad = true;
+
+const useImagesStore = create<ImageStore>()(
   devtools(
     (set, get) => ({
       images: [],
       imagesCount: 0,
       loadingImages: false,
+      isFetching: false,
+      uploadingImages: false,
       getImages: async (page) => {
         if (get().loadingImages) return;
 
-        set({ loadingImages: true });
+        set({ loadingImages: true, isFetching: isFirstLoad });
         const response = await getImages({ pageParam: page });
         set((state) => ({
           images: [...state.images, ...response.images],
           imagesCount: response.imagesCount,
           loadingImages: false,
+          isFetching: false,
         }));
+        isFirstLoad = false;
       },
       uploadImages: async (formData, onUploadProgress) => {
+        set({ uploadingImages: true });
         const response = await addImages(formData, onUploadProgress);
         set((state) => ({
           images: [...response.images, ...state.images],
           imagesCount: response.imagesCount,
+          uploadingImages: false,
         }));
       },
     }),

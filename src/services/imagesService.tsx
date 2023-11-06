@@ -7,19 +7,32 @@ export interface GetImagesResponseType {
   imagesCount: number;
 }
 
+const defaultResponse = {
+  images: [],
+  imagesCount: 0,
+};
+
 export async function getImages({
   pageParam = 1,
 }): Promise<GetImagesResponseType> {
-  const res = await axiosClient.get(`/api/picture?page=${pageParam}`);
-  return res.data.data;
+  try {
+    const res = await axiosClient.get(`/api/picture?page=${pageParam}`);
+    return res.data.data;
+  } catch {
+    return defaultResponse;
+  }
 }
 
 export async function addImages(
   formData: FormData,
   onProgress?: (progress: AxiosProgressEvent) => void
 ): Promise<GetImagesResponseType> {
-  const { data } = await axiosClient.post(`/api/image`, formData, {
-    onUploadProgress: onProgress,
-  });
-  return data.data;
+  try {
+    const { data } = await axiosClient.post(`/api/picture`, formData, {
+      onUploadProgress: onProgress,
+    });
+    return data.data;
+  } catch {
+    return defaultResponse;
+  }
 }

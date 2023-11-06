@@ -17,12 +17,16 @@ const Transition = forwardRef(function Transition(
 
 interface UploadProgressDialogProps {
   progress: number | null;
+  open: boolean;
 }
 
-const UploadProgressDialog: FC<UploadProgressDialogProps> = ({ progress }) => {
+const UploadProgressDialog: FC<UploadProgressDialogProps> = ({
+  open,
+  progress = 0,
+}) => {
   return (
     <Dialog
-      open={progress !== null}
+      open={open}
       TransitionComponent={Transition}
       keepMounted
       maxWidth="sm"

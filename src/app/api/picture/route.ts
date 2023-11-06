@@ -3,6 +3,8 @@ import Picture, { PictureType } from "@/server/models/Picture";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
+import random from "@/util/randomId";
+import getBlurBase64 from "@/util/blurImage";
 
 const GET_IMAGE_LIMIT = 30;
 
@@ -40,29 +42,47 @@ export async function POST(request: NextRequest) {
     const data = await request.formData();
     const files = data.getAll("files") as File[];
 
-    files.forEach((file) => {
-      const filePath = path.join(process.cwd(), "/assets/", file.name);
+    const picturesData: PictureType[] = [];
+
+    // use file-type package to check real type of file and then save it if its image or video, filter out
+
+    const promiseArray = files.map(async (file) => {
+      const fileName = `${random()}_` + file.name;
+      const saveToPath = path.join(process.cwd(), `/assets/${fileName}`);
+
       const readableStream = file.stream();
-      const fsWriteStream = fs.createWriteStream(filePath);
+      const fsWriteStream = fs.createWriteStream(saveToPath);
+
+      let buffer: Buffer = Buffer.alloc(0);
 
       const writeStream = new WritableStream({
         write: (chunk) => {
           fsWriteStream.write(chunk);
+          buffer = Buffer.concat([buffer, chunk]);
         },
       });
 
-      readableStream.pipeTo(writeStream).then((res) => {
-        console.log(res);
+      await readableStream.pipeTo(writeStream);
+
+      const blurBase64 = await getBlurBase64(buffer);
+
+      picturesData.push({
+        name: file.name,
+        source: `/${fileName}`,
+        blurDataURL: blurBase64,
       });
     });
 
-    // upload image to assets folder
+    await Promise.all(promiseArray);
 
-    // const dbResponse = await Picture.create(savedPicturesResponse);
+    const dbResponse = await Picture.create(picturesData);
 
-    // const imagesCount = await Picture.count();
+    const imagesCount = await Picture.count();
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      data: { images: dbResponse.reverse(), imagesCount },
+    });
   } catch (error) {
     console.log(error);
     return NextResponse.json(

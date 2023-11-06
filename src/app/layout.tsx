@@ -1,7 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import ThemeRegistry from "@/ThemeRegistry/ThemeRegistry";
-import { roboto } from "@/ThemeRegistry/font";
+import { poppins } from "@/ThemeRegistry/font";
 import Paper from "@mui/material/Paper";
 import BottomBarNavigation from "@/components/BottomBarNavigation";
 import ErrorContainer from "@/components/ErrorContainer";
@@ -22,7 +22,7 @@ export default function RootLayout({
         <Paper
           component="body"
           elevation={8}
-          className={`${roboto.className} min-h-screen`}
+          className={`${poppins.className} min-h-screen`}
         >
           <ErrorContainer>{children}</ErrorContainer>
           <BottomBarNavigation />

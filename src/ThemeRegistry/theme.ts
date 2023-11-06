@@ -1,6 +1,6 @@
 import { createTheme } from "@mui/material/styles";
 import { deepPurple, lightBlue } from "@mui/material/colors";
-import { roboto } from "./font";
+import { poppins } from "./font";
 
 const theme = createTheme({
   palette: {
@@ -13,7 +13,7 @@ const theme = createTheme({
     },
   },
   typography: {
-    fontFamily: roboto.style.fontFamily,
+    fontFamily: poppins.style.fontFamily,
   },
   // components: {
   //   MuiAlert: {
