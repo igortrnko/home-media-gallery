@@ -12,7 +12,7 @@ const BottomBarNavigation = () => {
   const page = useSelectedLayoutSegment();
 
   return (
-    <Box bottom={0} left={0} right={0} position={"fixed"}>
+    <Box className="bottom-0 right-0 left-0 fixed">
       <BottomNavigation value={page}>
         <BottomNavigationAction
           href="/pictures"

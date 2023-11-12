@@ -75,13 +75,16 @@ export async function POST(request: NextRequest) {
 
     await Promise.all(promiseArray);
 
-    const dbResponse = await Picture.create(picturesData);
+    const dbResponse = (await Picture.create(picturesData)).sort(
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
 
     const imagesCount = await Picture.count();
 
     return NextResponse.json({
       success: true,
-      data: { images: dbResponse.reverse(), imagesCount },
+      data: { images: dbResponse, imagesCount },
     });
   } catch (error) {
     console.log(error);
