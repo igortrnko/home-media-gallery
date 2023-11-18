@@ -1,6 +1,6 @@
 import { PictureDT } from "@/server/models/Picture";
 import Image from "next/image";
-import { CSSProperties, FC } from "react";
+import { CSSProperties, FC, memo } from "react";
 
 interface GridImageProps {
   style: CSSProperties;
@@ -11,7 +11,7 @@ const GridImage: FC<GridImageProps> = ({ style, picture }) => {
   return (
     <div style={style}>
       <Image
-        src={"/api/image" + picture.source}
+        src={picture.source}
         alt={picture.name}
         fill
         sizes="33vw"
@@ -23,4 +23,4 @@ const GridImage: FC<GridImageProps> = ({ style, picture }) => {
   );
 };
 
-export default GridImage;
+export default memo(GridImage);

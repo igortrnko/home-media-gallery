@@ -1,11 +1,8 @@
 "use client";
 
 import { Box } from "@mui/material";
-import { useEffect, useState } from "react";
-import CircularProgress from "@mui/material/CircularProgress";
-import ImageLoadingSkeleton from "../ImageLoadingSkeleton";
+import { useEffect } from "react";
 import useImagesStore from "@/zustandStore/imagesStore";
-import { useShallow } from "zustand/react/shallow";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
 import WindowScroller from "react-virtualized/dist/commonjs/WindowScroller";
 import Collection, {
@@ -15,28 +12,28 @@ import ObserverContainer from "./ObserverContainer";
 import GridImage from "./GridImage";
 import DateItem from "./DateItem";
 import usePositionAndSizeGetter from "./usePositionAndSizeGetter";
+import "react-virtualized/styles.css";
+import useScreenSize from "@/hooks/useScreenSize";
 
 const PictureView = () => {
-  const [page, setPage] = useState(1);
+  const windowSizes = useScreenSize();
   const {
     getImages,
     loadingImages,
     isFetching,
     picturesViewFormattedImages,
     hasMoreImages,
-  } = useImagesStore(
-    useShallow((state) => ({
-      getImages: state.getImages,
-      hasMoreImages: state.hasMoreImages,
-      loadingImages: state.loadingImages,
-      isFetching: state.isFetching,
-      picturesViewFormattedImages: state.picturesViewFormattedImages,
-    }))
-  );
+  } = useImagesStore((state) => ({
+    getImages: state.getImages,
+    hasMoreImages: state.hasMoreImages,
+    loadingImages: state.loadingImages,
+    isFetching: state.isFetching,
+    picturesViewFormattedImages: state.picturesViewFormattedImages,
+  }));
 
   useEffect(() => {
-    getImages(page);
-  }, [getImages, page]);
+    getImages();
+  }, [getImages]);
 
   function collectionCellRenderer(props: CollectionCellRendererParams) {
     const item = picturesViewFormattedImages[props.index];
@@ -56,21 +53,23 @@ const PictureView = () => {
     };
   }
 
-  if (picturesViewFormattedImages.length === 0) {
-    return null;
+  if (picturesViewFormattedImages.length === 0 && isFetching) {
+    return <div>Loading...</div>;
+  }
+
+  if (picturesViewFormattedImages.length === 0 && !isFetching) {
+    return <div>No images</div>;
   }
 
   return (
-    <ObserverContainer
-      onEndReached={() => setPage((currentPage) => currentPage + 1)}
-      shouldExecute={!!hasMoreImages}
-    >
-      <WindowScroller>
-        {({ height, isScrolling, registerChild, scrollTop }) => (
-          <Box className="px-1" ref={registerChild}>
+    <ObserverContainer onEndReached={getImages} shouldExecute={!!hasMoreImages}>
+      <Box className="px-2">
+        <WindowScroller>
+          {({ height, scrollTop }) => (
             <AutoSizer disableHeight>
               {({ width }) => {
                 if (!width) return null;
+
                 return (
                   <Collection
                     cellCount={picturesViewFormattedImages.length}
@@ -81,14 +80,15 @@ const PictureView = () => {
                     width={width}
                     autoHeight
                     scrollTop={scrollTop}
-                    isScrolling={isScrolling}
+                    verticalOverscanSize={Number(windowSizes.height) * 2}
                   />
                 );
               }}
             </AutoSizer>
-          </Box>
-        )}
-      </WindowScroller>
+          )}
+        </WindowScroller>
+      </Box>
+      {loadingImages && <div>Loading...</div>}
     </ObserverContainer>
   );
 };

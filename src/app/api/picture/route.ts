@@ -1,31 +1,36 @@
 import dbConnect from "@/server/dbConnect";
-import Picture, { PictureType } from "@/server/models/Picture";
+import Picture, { PictureDT, PictureType } from "@/server/models/Picture";
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
-import random from "@/util/randomId";
-import getBlurBase64 from "@/util/blurImage";
+import uploadImageStream from "@/util/uploadImageStream";
 
 const GET_IMAGE_LIMIT = 30;
 
 export async function GET(request: Request) {
   try {
     const url = new URL(request.url);
-    const page = Number(url.searchParams.get("page")) || 1;
+    const cursor = url.searchParams.get("cursor");
 
-    const skip = (page - 1) * GET_IMAGE_LIMIT;
+    const query = cursor
+      ? {
+          _id: { $lt: cursor },
+        }
+      : {};
 
     await dbConnect();
 
-    const images = await Picture.find()
-      .sort("-createdAt")
-      .skip(skip)
-      .limit(GET_IMAGE_LIMIT);
+    const images = await Picture.find<PictureDT>(query)
+      .lean()
+      .limit(GET_IMAGE_LIMIT)
+      .sort({ _id: -1 });
 
-    const imagesCount = await Picture.count();
+    const imagesCount = await Picture.count().lean();
 
     return NextResponse.json({
-      data: { images: images as PictureType[], imagesCount },
+      data: {
+        images: images,
+        imagesCount,
+        nextCursor: images.at(-1)?._id,
+      },
     });
   } catch (error) {
     return NextResponse.json(
@@ -46,36 +51,12 @@ export async function POST(request: NextRequest) {
 
     // use file-type package to check real type of file and then save it if its image or video, filter out
 
-    const promiseArray = files.map(async (file) => {
-      const fileName = `${random()}_` + file.name;
-      const saveToPath = path.join(process.cwd(), `/assets/${fileName}`);
+    for (const file of files) {
+      const imageData = await uploadImageStream(file);
+      picturesData.push(imageData);
+    }
 
-      const readableStream = file.stream();
-      const fsWriteStream = fs.createWriteStream(saveToPath);
-
-      let buffer: Buffer = Buffer.alloc(0);
-
-      const writeStream = new WritableStream({
-        write: (chunk) => {
-          fsWriteStream.write(chunk);
-          buffer = Buffer.concat([buffer, chunk]);
-        },
-      });
-
-      await readableStream.pipeTo(writeStream);
-
-      const blurBase64 = await getBlurBase64(buffer);
-
-      picturesData.push({
-        name: file.name,
-        source: `/${fileName}`,
-        blurDataURL: blurBase64,
-      });
-    });
-
-    await Promise.all(promiseArray);
-
-    const dbResponse = (await Picture.create(picturesData)).sort(
+    const dbResponse = (await Picture.insertMany(picturesData)).sort(
       (a, b) =>
         new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
     );

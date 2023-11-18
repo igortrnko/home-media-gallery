@@ -5,6 +5,7 @@ import UploadProgressDialog from "./UploadProgressDialog";
 import useImagesStore from "@/zustandStore/imagesStore";
 import { useShallow } from "zustand/react/shallow";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { Box } from "@mui/material";
 
 const UploadButton: FC = () => {
   const [progress, setProgress] = useState<null | number>(null);
@@ -14,6 +15,14 @@ const UploadButton: FC = () => {
       uploadingImages: state.uploadingImages,
     }))
   );
+
+  function handleUploadProgress({ progress }: { progress?: number }) {
+    setProgress(progress ? progress * 100 : null);
+  }
+
+  function handleUploadDone() {
+    setProgress(null);
+  }
 
   const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const images = event.target.files;
@@ -25,13 +34,11 @@ const UploadButton: FC = () => {
       formData.append("files", img);
     });
 
-    uploadImages(formData, ({ progress }) =>
-      setProgress(progress ? progress * 100 : null)
-    );
+    uploadImages(formData, handleUploadProgress, handleUploadDone);
   };
 
   return (
-    <>
+    <Box className="p-4">
       <label
         className="max-h-[100px] rounded-md flex flex-col items-center justify-center gap-5 cursor-pointer border-2 border-dashed border-l-blueGrey-400 shadow-md p-4"
         htmlFor="files"
@@ -48,7 +55,7 @@ const UploadButton: FC = () => {
         />
       </label>
       <UploadProgressDialog open={uploadingImages} progress={progress} />
-    </>
+    </Box>
   );
 };
 

@@ -5,18 +5,20 @@ import { AxiosProgressEvent } from "axios";
 export interface GetImagesResponseType {
   images: PictureDT[];
   imagesCount: number;
+  nextCursor?: string | null;
 }
 
 const defaultResponse = {
   images: [],
   imagesCount: 0,
+  nextCursor: null,
 };
 
 export async function getImages({
-  pageParam = 1,
+  cursor = "",
 }): Promise<GetImagesResponseType> {
   try {
-    const res = await axiosClient.get(`/api/picture?page=${pageParam}`);
+    const res = await axiosClient.get(`/api/picture?cursor=${cursor}`);
     return res.data.data;
   } catch {
     return defaultResponse;

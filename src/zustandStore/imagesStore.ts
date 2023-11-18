@@ -3,38 +3,39 @@ import { addImages, getImages } from "@/services/imagesService";
 import { formatImagesOnAdd, formatImagesOnGet } from "@/util/formatImageArray";
 import { AxiosProgressEvent } from "axios";
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { devtools, subscribeWithSelector } from "zustand/middleware";
 
-interface ImageStore {
+export interface ImageStore {
   images: PictureDT[];
   picturesViewFormattedImages: (string | PictureDT)[];
   hasMoreImages: boolean | null;
   loadingImages: boolean;
   isFetching: boolean;
   uploadingImages: boolean;
-  getImages: (page: number) => void;
+  nextCursor: string;
+  getImages: () => void;
   uploadImages: (
     formData: FormData,
-    onUploadProgress?: (progress: AxiosProgressEvent) => void
+    onUploadProgress?: (progress: AxiosProgressEvent) => void,
+    onUploadDone?: () => void
   ) => void;
 }
 
-let isFirstLoad = true;
-
 const useImagesStore = create<ImageStore>()(
   devtools(
-    (set, get) => ({
+    subscribeWithSelector((set, get) => ({
       images: [],
       picturesViewFormattedImages: [],
       hasMoreImages: null,
       loadingImages: false,
-      isFetching: false,
+      isFetching: true,
       uploadingImages: false,
-      getImages: async (page) => {
+      nextCursor: "",
+      getImages: async () => {
         if (get().loadingImages) return;
 
-        set({ loadingImages: true, isFetching: isFirstLoad });
-        const response = await getImages({ pageParam: page });
+        set({ loadingImages: true });
+        const response = await getImages({ cursor: get().nextCursor });
 
         const { images, picturesViewFormattedImages } = get();
 
@@ -51,10 +52,10 @@ const useImagesStore = create<ImageStore>()(
           hasMoreImages,
           loadingImages: false,
           isFetching: false,
+          nextCursor: response.nextCursor || "",
         });
-        isFirstLoad = false;
       },
-      uploadImages: async (formData, onUploadProgress) => {
+      uploadImages: async (formData, onUploadProgress, onUploadDone) => {
         set({ uploadingImages: true });
         const response = await addImages(formData, onUploadProgress);
 
@@ -72,8 +73,10 @@ const useImagesStore = create<ImageStore>()(
           hasMoreImages,
           uploadingImages: false,
         });
+
+        onUploadDone?.();
       },
-    }),
+    })),
     { name: "ImageStore" }
   )
 );

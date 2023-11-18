@@ -1,32 +1,3 @@
-// import { PictureDT } from "@/server/models/Picture";
-
-// export default function formatImageArray(
-//   images: PictureDT[],
-//   concatWithImages: [string, PictureDT[][]][]
-// ) {
-//   const finalData = new Map<string, PictureDT[][]>(concatWithImages);
-
-//   images.forEach((imageData) => {
-//     const createdAt = new Date(imageData.createdAt).toLocaleDateString(
-//       "sr-RS",
-//       { month: "short", day: "2-digit", year: "numeric" }
-//     );
-
-//     const data =
-//       finalData.get(createdAt) ?? finalData.set(createdAt, []).get(createdAt)!;
-
-//     const lastArray = data.at(-1);
-
-//     if (lastArray && lastArray.length < 3) {
-//       lastArray.push(imageData);
-//     } else {
-//       data.push([imageData]);
-//     }
-//   });
-
-//   return Array.from(finalData);
-// }
-
 import { PictureDT } from "@/server/models/Picture";
 
 export function formatDate(date: string | Date | number) {

@@ -4,7 +4,7 @@ const nextConfig = {
   reactStrictMode: true,
 
   images: {
-    domains: ["localhost"],
+    remotePatterns: [{ hostname: "localhost" }],
   },
 
   async redirects() {
