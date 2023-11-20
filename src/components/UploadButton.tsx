@@ -38,7 +38,17 @@ const UploadButton: FC = () => {
   };
 
   return (
-    <Box className="p-4">
+    <Box
+      className="p-4"
+      // onDragOver={(e) => {
+      //   e.preventDefault();
+      // }}
+      // onDrop={(e) => {
+      //   e.preventDefault();
+      //   const droppedFiles = Array.from(e.dataTransfer.files);
+      //   console.log(droppedFiles);
+      // }}
+    >
       <label
         className="max-h-[100px] rounded-md flex flex-col items-center justify-center gap-5 cursor-pointer border-2 border-dashed border-l-blueGrey-400 shadow-md p-4"
         htmlFor="files"

@@ -1,7 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 export default function useScreenSize() {
-  const sizes = useSyncExternalStore(subscribe, getSnapshot);
+  const sizes = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
   return sizes;
 }
 
@@ -24,5 +24,9 @@ function getSnapshot() {
   ) {
     state = { width: window.innerWidth, height: window.innerHeight };
   }
+  return state;
+}
+
+function getServerSnapshot() {
   return state;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { Box } from "@mui/material";
+import Box from "@mui/material/Box";
 import { useEffect } from "react";
 import useImagesStore from "@/zustandStore/imagesStore";
 import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
@@ -14,6 +14,8 @@ import DateItem from "./DateItem";
 import usePositionAndSizeGetter from "./usePositionAndSizeGetter";
 import "react-virtualized/styles.css";
 import useScreenSize from "@/hooks/useScreenSize";
+import useIsUpdatingValue from "@/hooks/useIsUpdatingValue";
+import CircularProgress from "@mui/material/CircularProgress";
 
 const PictureView = () => {
   const windowSizes = useScreenSize();
@@ -31,8 +33,10 @@ const PictureView = () => {
     picturesViewFormattedImages: state.picturesViewFormattedImages,
   }));
 
+  const isUpdatingScreenWidth = useIsUpdatingValue(windowSizes.width, 300);
+
   useEffect(() => {
-    getImages();
+    getImages({ firstFetch: true });
   }, [getImages]);
 
   function collectionCellRenderer(props: CollectionCellRendererParams) {
@@ -53,8 +57,15 @@ const PictureView = () => {
     };
   }
 
-  if (picturesViewFormattedImages.length === 0 && isFetching) {
-    return <div>Loading...</div>;
+  if (
+    (picturesViewFormattedImages.length === 0 && isFetching) ||
+    isUpdatingScreenWidth
+  ) {
+    return (
+      <div className="w-full flex justify-center mt-4">
+        <CircularProgress />
+      </div>
+    );
   }
 
   if (picturesViewFormattedImages.length === 0 && !isFetching) {
@@ -65,7 +76,7 @@ const PictureView = () => {
     <ObserverContainer onEndReached={getImages} shouldExecute={!!hasMoreImages}>
       <Box className="px-2">
         <WindowScroller>
-          {({ height, scrollTop }) => (
+          {({ height, scrollTop, isScrolling, onChildScroll }) => (
             <AutoSizer disableHeight>
               {({ width }) => {
                 if (!width) return null;
@@ -80,7 +91,9 @@ const PictureView = () => {
                     width={width}
                     autoHeight
                     scrollTop={scrollTop}
-                    verticalOverscanSize={Number(windowSizes.height) * 2}
+                    isScrolling={isScrolling}
+                    onScroll={onChildScroll}
+                    verticalOverscanSize={Number(windowSizes.height) * 1.5}
                   />
                 );
               }}
@@ -88,7 +101,11 @@ const PictureView = () => {
           )}
         </WindowScroller>
       </Box>
-      {loadingImages && <div>Loading...</div>}
+      {loadingImages && (
+        <div className="w-full flex justify-center my-4">
+          <CircularProgress />
+        </div>
+      )}
     </ObserverContainer>
   );
 };

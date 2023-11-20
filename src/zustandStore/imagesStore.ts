@@ -5,6 +5,9 @@ import { AxiosProgressEvent } from "axios";
 import { create } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
 
+interface GetImagesArgs {
+  firstFetch?: boolean;
+}
 export interface ImageStore {
   images: PictureDT[];
   picturesViewFormattedImages: (string | PictureDT)[];
@@ -13,7 +16,7 @@ export interface ImageStore {
   isFetching: boolean;
   uploadingImages: boolean;
   nextCursor: string;
-  getImages: () => void;
+  getImages: (options?: GetImagesArgs) => void;
   uploadImages: (
     formData: FormData,
     onUploadProgress?: (progress: AxiosProgressEvent) => void,
@@ -31,7 +34,8 @@ const useImagesStore = create<ImageStore>()(
       isFetching: true,
       uploadingImages: false,
       nextCursor: "",
-      getImages: async () => {
+      getImages: async (options?: GetImagesArgs) => {
+        if (options?.firstFetch && get().images.length > 0) return;
         if (get().loadingImages) return;
 
         set({ loadingImages: true });

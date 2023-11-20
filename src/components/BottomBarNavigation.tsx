@@ -12,8 +12,8 @@ const BottomBarNavigation = () => {
   const page = useSelectedLayoutSegment();
 
   return (
-    <Box className="bottom-0 right-0 left-0 fixed">
-      <BottomNavigation value={page}>
+    <Box className="bottom-0 right-0 left-0 fixed max-w-3xl mx-auto">
+      <BottomNavigation value={page} showLabels>
         <BottomNavigationAction
           href="/pictures"
           LinkComponent={Link}

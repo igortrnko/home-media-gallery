@@ -1,5 +1,4 @@
 import { PictureDT } from "@/server/models/Picture";
-import { useRef } from "react";
 import { CollectionCellSizeAndPosition } from "react-virtualized/dist/commonjs/Collection";
 
 const STRING_ITEM_HEIGHT = 50;

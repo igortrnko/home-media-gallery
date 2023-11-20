@@ -1,5 +1,6 @@
 import { PictureDT } from "@/server/models/Picture";
 import Image from "next/image";
+import Link from "next/link";
 import { CSSProperties, FC, memo } from "react";
 
 interface GridImageProps {
@@ -9,17 +10,17 @@ interface GridImageProps {
 
 const GridImage: FC<GridImageProps> = ({ style, picture }) => {
   return (
-    <div style={style}>
+    <Link href={`/picture/${picture._id}`} style={style}>
       <Image
         src={picture.source}
         alt={picture.name}
         fill
         sizes="33vw"
-        className="object-cover rounded-md p-0.5"
+        className="object-cover rounded-md w-[97%] h-[97%]"
         placeholder={picture.blurDataURL ? "blur" : "empty"}
         blurDataURL={picture.blurDataURL}
       />
-    </div>
+    </Link>
   );
 };
 

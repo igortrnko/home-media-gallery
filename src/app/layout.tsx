@@ -5,6 +5,7 @@ import { poppins } from "@/ThemeRegistry/font";
 import Paper from "@mui/material/Paper";
 import BottomBarNavigation from "@/components/BottomBarNavigation";
 import ErrorContainer from "@/components/ErrorContainer";
+import Box from "@mui/material/Box";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -13,8 +14,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
+  picturePreviewModal,
 }: {
   children: React.ReactNode;
+  picturePreviewModal: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -24,9 +27,12 @@ export default function RootLayout({
           elevation={8}
           className={`${poppins.className} min-h-screen`}
         >
-          <ErrorContainer>{children}</ErrorContainer>
-          <BottomBarNavigation />
+          <Box className="max-w-3xl mx-auto">
+            <ErrorContainer>{children}</ErrorContainer>
+            <BottomBarNavigation />
+          </Box>
         </Paper>
+        {picturePreviewModal}
       </ThemeRegistry>
     </html>
   );
