@@ -51,6 +51,21 @@ const config: Config = {
       teal,
       yellow,
     },
+    extend: {
+      keyframes: {
+        opacity: {
+          "0%": {
+            opacity: "0",
+          },
+          "100%": {
+            opacity: "1",
+          },
+        },
+      },
+      animation: {
+        opacity: "opacity 0.7s ease-in",
+      },
+    },
   },
   plugins: [],
   corePlugins: {

@@ -1,6 +1,11 @@
 import { PictureDT } from "@/server/models/Picture";
 import { addImages, getImages } from "@/services/imagesService";
-import { formatImagesOnAdd, formatImagesOnGet } from "@/util/formatImageArray";
+import {
+  // formatImagesOnAdd,
+  // formatImagesOnGet,
+  formatImagesOnAddLists,
+  formatImagesOnGetLists,
+} from "@/util/formatImageArray";
 import { AxiosProgressEvent } from "axios";
 import { create } from "zustand";
 import { devtools, subscribeWithSelector } from "zustand/middleware";
@@ -10,7 +15,8 @@ interface GetImagesArgs {
 }
 export interface ImageStore {
   images: PictureDT[];
-  picturesViewFormattedImages: (string | PictureDT)[];
+  // picturesViewFormattedImages: (string | PictureDT)[];
+  picturesViewFormattedImages: (string | PictureDT[])[];
   hasMoreImages: boolean | null;
   loadingImages: boolean;
   isFetching: boolean;
@@ -44,7 +50,11 @@ const useImagesStore = create<ImageStore>()(
         const { images, picturesViewFormattedImages } = get();
 
         const newImagesArray = [...images, ...response.images];
-        const newPicturesViewFormattedImages = formatImagesOnGet(
+        // const newPicturesViewFormattedImages = formatImagesOnGet(
+        //   response.images,
+        //   picturesViewFormattedImages
+        // );
+        const newPicturesViewFormattedImages = formatImagesOnGetLists(
           response.images,
           picturesViewFormattedImages
         );
@@ -65,10 +75,15 @@ const useImagesStore = create<ImageStore>()(
 
         const { images, picturesViewFormattedImages } = get();
         const newImagesArray = [...response.images, ...images];
-        const newPicturesViewFormattedImages = formatImagesOnAdd(
+        // const newPicturesViewFormattedImages = formatImagesOnAdd(
+        //   response.images,
+        //   picturesViewFormattedImages
+        // );
+        const newPicturesViewFormattedImages = formatImagesOnAddLists(
           response.images,
           picturesViewFormattedImages
         );
+
         const hasMoreImages = response.imagesCount !== newImagesArray.length;
 
         set({

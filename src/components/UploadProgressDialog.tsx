@@ -32,7 +32,7 @@ const UploadProgressDialog: FC<UploadProgressDialogProps> = ({
       maxWidth="sm"
       fullWidth
     >
-      <DialogTitle>{"Otpremanje slika"}</DialogTitle>
+      <DialogTitle>Otpremanje slika</DialogTitle>
       <DialogContent>
         <LinearProgress
           className="h-2 rounded-full"

@@ -1,66 +1,71 @@
 "use client";
 
 import Box from "@mui/material/Box";
-import { useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import useImagesStore from "@/zustandStore/imagesStore";
-import AutoSizer from "react-virtualized/dist/commonjs/AutoSizer";
-import WindowScroller from "react-virtualized/dist/commonjs/WindowScroller";
-import Collection, {
-  CollectionCellRendererParams,
-} from "react-virtualized/dist/commonjs/Collection";
 import ObserverContainer from "./ObserverContainer";
-import GridImage from "./GridImage";
-import DateItem from "./DateItem";
-import usePositionAndSizeGetter from "./usePositionAndSizeGetter";
-import "react-virtualized/styles.css";
-import useScreenSize from "@/hooks/useScreenSize";
-import useIsUpdatingValue from "@/hooks/useIsUpdatingValue";
 import CircularProgress from "@mui/material/CircularProgress";
+import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { PictureDT } from "@/server/models/Picture";
+import DateRow from "./DateRow";
+import ImageRow from "./ImageRow";
+
+const DATE_ROW_HEIGHT = 50;
+const IMAGE_ROW_HEIGHT = 150;
 
 const PictureView = () => {
-  const windowSizes = useScreenSize();
+  // const windowSizes = useScreenSize();
   const {
     getImages,
     loadingImages,
     isFetching,
-    picturesViewFormattedImages,
+    datesAndImagesArray,
     hasMoreImages,
   } = useImagesStore((state) => ({
     getImages: state.getImages,
     hasMoreImages: state.hasMoreImages,
     loadingImages: state.loadingImages,
     isFetching: state.isFetching,
-    picturesViewFormattedImages: state.picturesViewFormattedImages,
+    datesAndImagesArray: state.picturesViewFormattedImages,
   }));
 
-  const isUpdatingScreenWidth = useIsUpdatingValue(windowSizes.width, 300);
+  // const isUpdatingScreenWidth = useIsUpdatingValue(windowSizes.width, 300);
 
   useEffect(() => {
     getImages({ firstFetch: true });
   }, [getImages]);
 
-  function collectionCellRenderer(props: CollectionCellRendererParams) {
-    const item = picturesViewFormattedImages[props.index];
-    return typeof item === "string" ? (
-      <DateItem key={props.key} style={props.style} date={item} />
-    ) : (
-      <GridImage key={props.key} style={props.style} picture={item} />
-    );
-  }
+  const isDateItem = useCallback(
+    (index: number) => typeof datesAndImagesArray[index] === "string",
+    [datesAndImagesArray]
+  );
 
-  const { getParameters, resetPositionsCache } = usePositionAndSizeGetter();
+  const estimateSize = useCallback(
+    (index: number) => {
+      return isDateItem(index) ? DATE_ROW_HEIGHT : IMAGE_ROW_HEIGHT;
+    },
+    [isDateItem]
+  );
 
-  function cellSizeAndPositionGetter(width: number) {
-    return function getter({ index }: { index: number }) {
-      const item = picturesViewFormattedImages[index];
-      return getParameters(item, width);
-    };
-  }
+  const getItemKey = useCallback(
+    (index: number) =>
+      isDateItem(index)
+        ? (datesAndImagesArray[index] as string)
+        : (datesAndImagesArray[index][0] as PictureDT)._id,
+    [isDateItem, datesAndImagesArray]
+  );
 
-  if (
-    (picturesViewFormattedImages.length === 0 && isFetching) ||
-    isUpdatingScreenWidth
-  ) {
+  const listRef = useRef<HTMLDivElement | null>(null);
+
+  const virtualizer = useWindowVirtualizer({
+    count: datesAndImagesArray.length,
+    estimateSize,
+    overscan: 20,
+    scrollMargin: listRef.current?.offsetTop ?? 0,
+    getItemKey,
+  });
+
+  if (datesAndImagesArray.length === 0 && isFetching) {
     return (
       <div className="w-full flex justify-center mt-4">
         <CircularProgress />
@@ -68,40 +73,36 @@ const PictureView = () => {
     );
   }
 
-  if (picturesViewFormattedImages.length === 0 && !isFetching) {
+  if (datesAndImagesArray.length === 0 && !isFetching) {
     return <div>No images</div>;
   }
 
   return (
     <ObserverContainer onEndReached={getImages} shouldExecute={!!hasMoreImages}>
-      <Box className="px-2">
-        <WindowScroller>
-          {({ height, scrollTop, isScrolling, onChildScroll }) => (
-            <AutoSizer disableHeight>
-              {({ width }) => {
-                if (!width) return null;
-
-                return (
-                  <Collection
-                    cellCount={picturesViewFormattedImages.length}
-                    cellRenderer={collectionCellRenderer}
-                    cellSizeAndPositionGetter={cellSizeAndPositionGetter(width)}
-                    onSectionRendered={resetPositionsCache}
-                    height={height}
-                    width={width}
-                    autoHeight
-                    scrollTop={scrollTop}
-                    isScrolling={isScrolling}
-                    onScroll={onChildScroll}
-                    verticalOverscanSize={Number(windowSizes.height) * 1.5}
-                  />
-                );
-              }}
-            </AutoSizer>
-          )}
-        </WindowScroller>
+      <Box className="px-2 w-full" ref={listRef}>
+        <Box className="relative" height={virtualizer.getTotalSize()}>
+          {virtualizer
+            .getVirtualItems()
+            .map((item) =>
+              typeof datesAndImagesArray[item.index] === "string" ? (
+                <DateRow
+                  key={item.index}
+                  date={datesAndImagesArray[item.index] as string}
+                  height={item.size}
+                  translateY={item.start - virtualizer.options.scrollMargin}
+                />
+              ) : (
+                <ImageRow
+                  key={item.index}
+                  images={datesAndImagesArray[item.index] as PictureDT[]}
+                  height={item.size}
+                  translateY={item.start - virtualizer.options.scrollMargin}
+                />
+              )
+            )}
+        </Box>
       </Box>
-      {loadingImages && (
+      {hasMoreImages && (
         <div className="w-full flex justify-center my-4">
           <CircularProgress />
         </div>
